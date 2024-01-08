@@ -1,0 +1,80 @@
+perl-program ::= { declaration }
+declaration ::= variable-declaration | function-declaration | statement
+
+variable-declaration ::= ( "my" | "our" ) variable [ ( '=' | "//=" ) expression ] ';'
+
+function-declaration ::= "sub" function-name '(' parameter-list ')' '{' block '}'
+
+parameter-list ::= variable { ',' variable }
+
+block ::= { statement }
+
+statement ::= expression ';'
+           | if-statement
+           | while-loop
+           | for-loop
+           | foreach-loop
+           | return-statement
+           | print-statement
+
+if-statement ::= "if" '(' expression ')' '{' block '}' ('else' '{' block '}')?
+
+while-loop ::= "while" '(' expression ')' '{' block '}'
+
+for-loop ::= "for" '(' expression ';' expression ';' expression ')' '{' block '}'
+
+foreach-loop ::= "foreach" variable '(' expression ')' '{' block '}'
+
+return-statement ::= "return" expression ';'
+
+print-statement ::= "print" expression ';'
+printf-statement ::= "printf" string expression ';'
+
+expression ::= assignment | logical-expression | string-equality-expression
+
+assignment ::= variable '=' expression
+
+logical-expression ::= equality-expression { ( "and" | "or" | "not" ) equality-expression }
+
+string-equality-expression ::= relational-expression { ( "eq" | "ne" | "lt" | "le" | "gt" | "ge" ) relational-expression }
+
+equality-expression ::= relational-expression { ( '==' | "!=" | '<' | "<=" | '>' | ">=" ) relational-expression }
+
+relational-expression ::= additive-expression { ( '+' | '-' ) additive-expression }
+
+additive-expression ::= multiplicative-expression { ( '*' | '/' | '%' ) multiplicative-expression }
+
+multiplicative-expression ::= primary { "**" primary }
+
+primary ::= variable
+          | number
+          | string
+          | '(' expression ')'
+          | function-call
+
+function-call ::= function-name '(' argument-list ')'
+
+argument-list ::= expression { ',' expression }
+
+variable ::= identifier
+
+function-name ::= identifier
+
+identifier ::= letter { letter-or-digit }
+
+letter ::= 'a' | 'b' | ... | 'z' | 'A' | 'B' | ... | 'Z' | '_'
+
+letter-or-digit ::= letter | digit
+
+number ::= integer | float
+
+integer ::= { digit }
+
+float ::= integer '.' { digit }
+
+string ::= '"' character { character } '"'
+
+character ::= any-ASCII-character-except-double-quote
+
+digit ::= '0' | '1' | ... | '9'
+
