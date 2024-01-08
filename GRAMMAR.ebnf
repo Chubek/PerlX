@@ -28,15 +28,19 @@ foreach-loop ::= "foreach" variable '(' expression ')' '{' block '}'
 return-statement ::= "return" expression ';'
 
 print-statement ::= "print" expression ';'
-printf-statement ::= "printf" string expression ';'
+                | "printf" string expression ';'
 
-expression ::= assignment | logical-expression | string-equality-expression
+expression ::= assignment | logical-expression | string-equality-expression | regex-expression | substitution-expression
 
 assignment ::= variable '=' expression
 
 logical-expression ::= equality-expression { ( "and" | "or" | "not" ) equality-expression }
 
 string-equality-expression ::= relational-expression { ( "eq" | "ne" | "lt" | "le" | "gt" | "ge" ) relational-expression }
+
+regex-expression ::= 'm' regex-pattern [ 'g' ] [ 'i' ] [ 'm' ]
+
+substitution-expression ::= 's' regex-pattern substitution-replacement [ 'g' ] [ 'i' ] [ 'm' ]
 
 equality-expression ::= relational-expression { ( '==' | "!=" | '<' | "<=" | '>' | ">=" ) relational-expression }
 
@@ -49,8 +53,19 @@ multiplicative-expression ::= primary { "**" primary }
 primary ::= variable
           | number
           | string
+          | regex
+          | substitution
+          | quote-word
           | '(' expression ')'
           | function-call
+
+quote-word ::= "qw" '(' word-list ')'
+
+word-list ::= string { ',' string }
+
+substitution ::= ( 's' | "tr" | 'y' ) delimiter regex-pattern delimiter substitution-replacement delimiter [ 'g' ] [ 'i' ] [ 'm' ]
+
+substitution-replacement ::= string
 
 function-call ::= function-name '(' argument-list ')'
 
@@ -59,6 +74,11 @@ argument-list ::= expression { ',' expression }
 variable ::= identifier
 
 function-name ::= identifier
+
+regex-pattern ::= '/' regex-character { regex-character } '/'
+               | 'q' delimiter regex-character { regex-character } delimiter
+
+regex-character ::= any-ASCII-character-except-slash
 
 identifier ::= letter { letter-or-digit }
 
@@ -73,6 +93,11 @@ integer ::= { digit }
 float ::= integer '.' { digit }
 
 string ::= '"' character { character } '"'
+         | q delimiter character { character } delimiter
+         | substitution-replacement
+
+delimiter ::= '!' | '"' | '#' | '%' | '&' | '\'' | '(' | ')' | '{' | '}' | '[' | ']' | '<' | '>'
+              | '-' | '+' | '*' | '=' | '?' | ':' | ';' | ',' | '.' | '/' | '\\' | '|' | '^' | '`' | '~'
 
 character ::= any-ASCII-character-except-double-quote
 
