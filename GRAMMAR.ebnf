@@ -1,13 +1,5 @@
 perl-program ::= { declaration }
-declaration ::= variable-declaration | function-declaration | statement
-
-variable-declaration ::= ( "my" | "our" ) variable [ ( '=' | "//=" ) expression ] ';'
-
-function-declaration ::= "sub" function-name '(' parameter-list ')' '{' block '}'
-
-parameter-list ::= variable { ',' variable }
-
-block ::= { statement }
+declaration ::= variable-declaration | function-declaration | statement | io-statement
 
 statement ::= expression ';'
            | if-statement
@@ -16,21 +8,60 @@ statement ::= expression ';'
            | foreach-loop
            | return-statement
            | print-statement
+           | next-statement
+           | last-statement
+           | redo-statement
+	   | given-when-statement
 
-if-statement ::= "if" '(' expression ')' '{' block '}' ('else' '{' block '}')?
+if-statement ::= "if" '(' expression ')' block { "elsif" block } [ "else" block ]
 
-while-loop ::= "while" '(' expression ')' '{' block '}'
+while-loop ::= "while" '(' expression ')' block
 
-for-loop ::= "for" '(' expression ';' expression ';' expression ')' '{' block '}'
+for-loop ::= "for" '(' expression ';' expression ';' expression ')' block
 
-foreach-loop ::= "foreach" variable '(' expression ')' '{' block '}'
+foreach-loop ::= "foreach" variable '(' expression ')' block
 
 return-statement ::= "return" expression ';'
 
-print-statement ::= "print" expression ';'
-                | "printf" string expression ';'
+next-statement ::= "next" ';'
 
-expression ::= assignment | logical-expression | string-equality-expression | regex-expression | substitution-expression
+last-statement ::= "last" ';'
+
+redo-statement ::= "redo" ';'
+
+given-when-statement ::= "given" expression '{' when-blocks '}'
+
+when-blocks ::= { when-block }
+
+when-block ::= "when" value-list  block 
+
+value-list ::= expression { ',' expression }
+
+block ::= '{' { declaration } '}'
+io-statement ::= file-open-statement | file-close-statement | read-statement | write-statement | file-binary-mode
+
+file-open-statement ::= "open" file-handle ( '<' | '>' | ">>" | "q<" | "q>" | "q<<" ) filename ';'
+
+file-binary-mode ::= "BINMODE" file-handle ';'
+
+file-close-statement ::= "close" file-handle ';'
+
+read-statement ::= "read" variable ',' file-handle ';'
+                | "read" variable ',' expression ';'
+
+write-statement ::= "print" [ file-handle ] expression { ',' expression } ';'
+                | "printf" [ file-handle ] string expression { ',' expression } ';'
+                | "write" file-handle expression { ',' expression } ';'
+                | "say" expression { ',' expression } ';'
+
+file-handle ::= '<' identifier '>' 
+
+expression ::= assignment
+           | logical-expression
+           | string-equality-expression
+           | regex-expression
+           | substitution-expression
+           | quote-word-expression
 
 assignment ::= variable '=' expression
 
@@ -38,9 +69,11 @@ logical-expression ::= equality-expression { ( "and" | "or" | "not" ) equality-e
 
 string-equality-expression ::= relational-expression { ( "eq" | "ne" | "lt" | "le" | "gt" | "ge" ) relational-expression }
 
-regex-expression ::= 'm' regex-pattern [ 'g' ] [ 'i' ] [ 'm' ]
+regex-expression ::= 'm' delimiter regex-pattern [ 'g' ] [ 'i' ] [ 'm' ]
 
-substitution-expression ::= 's' regex-pattern substitution-replacement [ 'g' ] [ 'i' ] [ 'm' ]
+substitution-expression ::= 's' delimiter regex-pattern delimiter substitution-replacement delimiter [ 'g' ] [ 'i' ] [ 'm' ]
+
+quote-word-expression ::= "qw" '(' word-list ')'
 
 equality-expression ::= relational-expression { ( '==' | "!=" | '<' | "<=" | '>' | ">=" ) relational-expression }
 
@@ -93,13 +126,14 @@ integer ::= { digit }
 float ::= integer '.' { digit }
 
 string ::= '"' character { character } '"'
+         | "'" character { character } "'"
          | q delimiter character { character } delimiter
          | substitution-replacement
 
 delimiter ::= '!' | '"' | '#' | '%' | '&' | '\'' | '(' | ')' | '{' | '}' | '[' | ']' | '<' | '>'
               | '-' | '+' | '*' | '=' | '?' | ':' | ';' | ',' | '.' | '/' | '\\' | '|' | '^' | '`' | '~'
 
-character ::= any-ASCII-character-except-double-quote
+character ::= any-UNICODE-UTF8-character-except-double-quote
 
 digit ::= '0' | '1' | ... | '9'
 
