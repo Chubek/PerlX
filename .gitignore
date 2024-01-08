@@ -1,0 +1,9 @@
+build_/
+bin/
+lib/
+*.out
+*.a
+*.so
+*.c*
+*.tmp
+*.temp

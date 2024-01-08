@@ -1,0 +1,5 @@
+# dune init project Perlx
+# OCAMLPARAM: unset
+# Shared cache: disabled
+# Workspace root: /media/chubak/MARKSOLID/Perlx
+# Auto-detected concurrency: 16
